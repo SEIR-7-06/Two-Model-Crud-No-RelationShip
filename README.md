@@ -186,7 +186,7 @@ const mongoose = require('mongoose');
 //...farther down the page
 const mongoose = require('mongoose');
 
-const connectionString = 'mongodb://localhost/fruit';
+const connectionString = 'mongodb://localhost/blog';
 
 mongoose.connect(connectionString, { useNewUrlParser: true });
 
