@@ -184,10 +184,23 @@ router.get('/new', (req, res)=>{
 const mongoose = require('mongoose');
 //...
 //...farther down the page
-mongoose.connect('mongodb://localhost:27017/blog');
+const mongoose = require('mongoose');
 
-mongoose.connection.once('open', ()=>{
-	console.log('connected to mongo');
+const connectionString = 'mongodb://localhost/fruit';
+
+mongoose.connect(connectionString, { useNewUrlParser: true });
+
+
+mongoose.connection.on('connected', () => {
+  console.log(`Mongoose connected to ${connectionString}`);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('Mongoose disconnected');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.log('Mongoose error: ', err);
 });
 ```
 
