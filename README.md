@@ -31,9 +31,10 @@ server.js:
 ```javascript
 const express = require('express');
 const app = express();
+const PORT = 4000;
 
-app.listen(3000, ()=>{
-	console.log('listening....');
+app.listen(PORT, () => {
+	console.log(`Server running on port ${PORT}`);
 });
 ```
 
