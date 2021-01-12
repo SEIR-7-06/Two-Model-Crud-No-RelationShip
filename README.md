@@ -21,8 +21,11 @@
 1. `cd student_examples/blog`
 1. `npm init`
     - make entry point `server.js`
-1. `npm install express --save`
+1. `npm install express`
 1. `touch server.js`
+1. Add git to your project with `git init`
+1. `touch .gitignore`
+1. Add node_modules in your `.gitignore` file
 
 ## Start express
 
