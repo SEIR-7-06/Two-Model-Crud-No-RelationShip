@@ -87,7 +87,7 @@ app.get('/', (req, res)=>{
 1. `mkdir views/authors`
 1. `touch views/authors/index.ejs`
 
-views/authors.ejs:
+views/authors/index.ejs:
 
 ```html
 <!DOCTYPE html>
@@ -181,9 +181,11 @@ router.get('/new', (req, res)=>{
 
 ## Connect to mongo
 
-1. `npm install mongoose --save`
-1. Connect in server.js
+1. `npm install mongoose`
+2. `mkdir models`
+3. `touch models/index.js`
 
+in models/index.js
 ```javascript
 const mongoose = require('mongoose');
 //...
@@ -192,29 +194,25 @@ const mongoose = require('mongoose');
 
 const connectionString = 'mongodb://localhost/blog';
 
-mongoose.connect(connectionString, { useNewUrlParser: true,
-                                     useUnifiedTopology: true,
-                                     useCreateIndex: true,
-                                     useFindAndModify: false
-                                    });
+mongoose.connect(connectionString, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false
+});
 
 
 mongoose.connection.on('connected', () => {
   console.log(`Mongoose connected to ${connectionString}`);
 });
 
-mongoose.connection.on('disconnected', () => {
-  console.log('Mongoose disconnected');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.log('Mongoose error: ', err);
-});
+module.exports = {
+  Authors: require('./Authors.js')
+}
 ```
 
 ## Set up Author Model
 
-1. `mkdir models`
 1. `touch models/authors.js`
 
 ```javascript
@@ -231,23 +229,18 @@ module.exports = Author;
 
 ## Create Authors Create Route
 
-1. `npm install body-parser --save`
-1. use body parser in server.js
-
 ```javascript
-const bodyParser = require('body-parser');
-
-app.use(bodyParser.urlencoded({extended:false}));
+const db = require('../models/index.js');
+app.use(express.urlencoded({extended:false}));
 ```
 
 controllers/authors.js
 
 ```javascript
-const Author = require('../models/authors.js');
 //...
 //...farther down the page
 router.post('/', (req, res)=>{
-	Author.create(req.body, (err, createdAuthor)=>{
+	db.Author.create(req.body, (err, createdAuthor)=>{
 		res.redirect('/authors');
 	});
 });
@@ -259,7 +252,7 @@ controllers/authors.js:
 
 ```javascript
 router.get('/', (req, res)=>{
-	Author.find({}, (err, foundAuthors)=>{
+	db.Author.find({}, (err, foundAuthors)=>{
 		res.render('authors/index.ejs', {
 			authors: foundAuthors
 		});
@@ -324,7 +317,7 @@ towards the bottom controllers/authors.js:
 ```javascript
 //avoid this handling /new by placing it towards the bottom of the file
 router.get('/:id', (req, res)=>{
-	Author.findById(req.params.id, (err, foundAuthor)=>{
+	db.Author.findById(req.params.id, (err, foundAuthor)=>{
 		res.render('authors/show.ejs', {
 			author: foundAuthor
 		});
@@ -347,7 +340,7 @@ controllers/authors.js:
 
 ```javascript
 router.delete('/:id', (req, res)=>{
-	Author.findByIdAndRemove(req.params.id, ()=>{
+	db.Author.findByIdAndRemove(req.params.id, ()=>{
 		res.redirect('/authors');
 	});
 });
@@ -377,7 +370,7 @@ controllers/authors.js
 
 ```javascript
 router.get('/:id/edit', (req, res)=>{
-	Author.findById(req.params.id, (err, foundAuthor)=>{
+	db.Author.findById(req.params.id, (err, foundAuthor)=>{
 		res.render('authors/edit.ejs', {
 			author: foundAuthor
 		});
@@ -425,7 +418,7 @@ controllers/authors.js:
 
 ```javascript
 router.put('/:id', (req, res)=>{
-	Author.findByIdAndUpdate(req.params.id, req.body, ()=>{
+	db.Author.findByIdAndUpdate(req.params.id, req.body, ()=>{
 		res.redirect('/authors');
 	});
 });
