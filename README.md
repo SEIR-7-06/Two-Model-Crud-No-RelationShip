@@ -14,8 +14,8 @@ For this activity we'll be creating a Blog App with Express. In our blog we'll b
 1. Show Authors on Index Page
 1. Create Authors Show Page
 1. Create Authors Delete Route
-1. Create Authors Edit Page
-1. Create Authors Put Route
+<!-- 1. Create Authors Edit Page
+1. Create Authors Put Route -->
 
 ## Init Directory
 
