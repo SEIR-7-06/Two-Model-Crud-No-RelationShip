@@ -1,5 +1,7 @@
 # Two Model CRUD App - No relationship - First Model
 
+For this activity we'll be creating a Blog App with Express. In our blog we'll be able to view different authors, and view the articles that they have written.
+
 ## Lesson Objectives
 
 1. Init Directory
@@ -27,7 +29,7 @@
 1. `touch .gitignore`
 1. Add node_modules in your `.gitignore` file
 
-## Start express
+## Start Express
 
 server.js:
 
@@ -42,6 +44,8 @@ app.listen(PORT, () => {
 ```
 
 ## Create Home page
+
+We'll start by setting up the first page of our app, the homepage.
 
 1. `npm install ejs`
 1. `mkdir views`
@@ -77,12 +81,14 @@ views/index.ejs:
 server.js:
 
 ```javascript
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
 	res.render('index.ejs');
 });
 ```
 
 ## Create Authors Index
+
+We'll now setup the authors index page.
 
 1. `mkdir views/authors`
 1. `touch views/authors/index.ejs`
