@@ -17,12 +17,12 @@
 
 ## Init Directory
 
-1. `mkdir student_examples/blog`
-1. `cd student_examples/blog`
+1. `mkdir express-blog`
+1. `cd express-blog`
+1. `touch server.js`
 1. `npm init`
     - make entry point `server.js`
 1. `npm install express`
-1. `touch server.js`
 1. Add git to your project with `git init`
 1. `touch .gitignore`
 1. Add node_modules in your `.gitignore` file
@@ -37,13 +37,13 @@ const app = express();
 const PORT = 4000;
 
 app.listen(PORT, () => {
-	console.log(`Server running on port ${PORT}`);
+	console.log(`Server running on port ${PORT}! 👟`);
 });
 ```
 
 ## Create Home page
 
-1. `npm install ejs --save`
+1. `npm install ejs`
 1. `mkdir views`
 1. `touch views/index.ejs`
 
@@ -115,9 +115,9 @@ views/authors/index.ejs:
 ```
 
 1. `mkdir controllers`
-1. `touch controllers/authors.js`
+1. `touch controllers/authorsController.js`
 
-controllers/authors.js:
+controllers/authorsController.js:
 
 ```javascript
 const express = require('express');
@@ -133,7 +133,7 @@ module.exports = router;
 Use the controller in server.js:
 
 ```javascript
-const authorsController = require('./controllers/authors.js');
+const authorsController = require('./controllers/authorsController.js');
 app.use('/authors', authorsController);
 ```
 
@@ -164,14 +164,15 @@ app.use('/authors', authorsController);
 		</header>
 		<main>
 			<form action="/authors" method="POST">
-				<input type="text" name="name" />
+				<label for="name">Name: </label>
+				<input type="text" id="name" name="name" />
 			</form>
 		</main>
 	</body>
 </html>
 ```
 
-create route in `controllers/authors.js`
+create route in `controllers/authorsController.js`
 
 ```javascript
 router.get('/new', (req, res)=>{
@@ -187,9 +188,6 @@ router.get('/new', (req, res)=>{
 
 in models/index.js
 ```javascript
-const mongoose = require('mongoose');
-//...
-//...farther down the page
 const mongoose = require('mongoose');
 
 const connectionString = 'mongodb://localhost:27017/blogdb';
@@ -207,13 +205,13 @@ mongoose.connection.on('connected', () => {
 });
 
 module.exports = {
-  Authors: require('./Authors.js')
+  Author: require('./Author.js')
 }
 ```
 
 ## Set up Author Model
 
-1. `touch models/authors.js`
+1. `touch models/Author.js`
 
 ```javascript
 const mongoose = require('mongoose');
@@ -229,18 +227,27 @@ module.exports = Author;
 
 ## Create Authors Create Route
 
+Place this by your other require statements in your `authorsController.js` file.
 ```javascript
 const db = require('../models/index.js');
+```
+
+We'll want to use Express's native body parser. This will allow us to parse form data and attach it to the request body.
+
+We'll place this code just above our other `app.use` statements in the `server.js` file.
+```js
 app.use(express.urlencoded({extended:false}));
 ```
 
-controllers/authors.js
+controllers/authorsController.js
 
 ```javascript
 //...
 //...farther down the page
-router.post('/', (req, res)=>{
-	db.Author.create(req.body, (err, createdAuthor)=>{
+router.post('/', (req, res) => {
+	db.Author.create(req.body, (err, createdAuthor) => {
+		if (err) return console.log(err);
+
 		res.redirect('/authors');
 	});
 });
@@ -248,27 +255,31 @@ router.post('/', (req, res)=>{
 
 ## Show Authors on Index Page
 
-controllers/authors.js:
+Let's now update the Author index Route to query the database, finding all Author, and send them to our Author index template.
 
+controllers/authorsController.js:
 ```javascript
-router.get('/', (req, res)=>{
-	db.Author.find({}, (err, foundAuthors)=>{
-		res.render('authors/index.ejs', {
-			authors: foundAuthors
-		});
-	})
+router.get('/', (req, res) => {
+	db.Author.find({}, (err, foundAuthors) => {
+		if (err) return console.log(err);
+
+		res.render('authors/index.ejs', { authors: foundAuthors }
+	});
 });
 ```
 
-views/authors/index.ejs:
+In the Authors index template we'll add a main tag under neath our header tag. Here we will loop through the authors data and render a link showing the name for each Author.
 
+views/authors/index.ejs:
 ```html
 <main>
     <h2>List of Authors</h2>
     <ul>
         <% for(let i = 0; i < authors.length; i++){ %>
             <li>
-                <a href="/authors/<%=authors[i]._id%>"><%=authors[i].name%></a>
+                <a href="/authors/<%=authors[i]._id%>">
+									<%=authors[i].name%>
+								</a>
             </li>
         <% } %>
     </ul>
@@ -288,7 +299,7 @@ views/authors/index.ejs:
 	</head>
 	<body>
 		<header>
-			<h1>Show Page for <%=author.name%></h1>
+			<h1>Show Page for <%= author.name %></h1>
 			<nav>
 				<ul>
 					<li>
@@ -304,7 +315,7 @@ views/authors/index.ejs:
 			<section>
 				<h2>Author Attributes:</h2>
 				<ul>
-					<li>Name: <%=author.name%></li>
+					<li>Name: <%= author.name %></li>
 				</ul>
 			</section>
 		</main>
@@ -312,61 +323,71 @@ views/authors/index.ejs:
 </html>
 ```
 
-towards the bottom controllers/authors.js:
+towards the bottom controllers/authorsController.js:
 
 ```javascript
-//avoid this handling /new by placing it towards the bottom of the file
-router.get('/:id', (req, res)=>{
-	db.Author.findById(req.params.id, (err, foundAuthor)=>{
-		res.render('authors/show.ejs', {
-			author: foundAuthor
-		});
+// Place this route under the /new route to overriding that route.
+router.get('/:id', (req, res) => {
+	db.Author.findById(req.params.id, (err, foundAuthor) => {
+		if (err) return console.log(err);
+
+		res.render('authors/show.ejs', { author: foundAuthor });
 	});
 });
 ```
 
 ## Create Authors Delete Route
 
-1. `npm install method-override --save`
+1. `npm install method-override`
 1. use method-override in server.js:
 
+Place this at the top of the file next your other require statements.
 ```javascript
 const methodOverride = require('method-override')
+```
 
+Place this just **above** your other middleware calls (where you are calling `app.use`)
+```js
 app.use(methodOverride('_method'));
 ```
 
-controllers/authors.js:
+controllers/authorsController.js:
 
 ```javascript
-router.delete('/:id', (req, res)=>{
-	db.Author.findByIdAndRemove(req.params.id, ()=>{
+router.delete('/:id', (req, res) => {
+	db.Author.findByIdAndRemove(req.params.id, (err) => {
+		if (err) return console.log(err);
+
 		res.redirect('/authors');
 	});
 });
 ```
 
+In the `show.ejs` template, add this just below the section where you are rendering the Author name.
+
 views/authors/show.ejs
 
 ```html
 <section>
-    <form action="/authors/<%=author._id%>?_method=DELETE" method="post">
+    <form action="/authors/<%= author._id %>?_method=DELETE" method="post">
         <input type="submit" value="Delete Author"/>
     </form>
 </section>
 ```
 
-## Create Authors Edit Page
+<!-- ## Create Authors Edit Page
+
+In the `show.ejs` template add this just below the section for your delete.
 
 Create a link on views/authors/show.ejs:
 
 ```html
 <section>
-    <a href="/authors/<%=author._id%>/edit">Edit</a>
+    <a href="/authors/<%= author._id %>/edit">Edit</a>
 </section>
 ```
 
-controllers/authors.js
+controllers/authorsController.js
 
 ```javascript
 router.get('/:id/edit', (req, res)=>{
@@ -414,7 +435,7 @@ router.get('/:id/edit', (req, res)=>{
 
 ## Create Authors Put Route
 
-controllers/authors.js:
+controllers/authorsController.js:
 
 ```javascript
 router.put('/:id', (req, res)=>{
@@ -422,4 +443,4 @@ router.put('/:id', (req, res)=>{
 		res.redirect('/authors');
 	});
 });
-```
+``` -->
