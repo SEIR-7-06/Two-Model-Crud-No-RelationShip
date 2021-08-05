@@ -129,7 +129,7 @@ controllers/authorsController.js:
 const express = require('express');
 const router = express.Router();
 
-router.get('/', (req, res)=>{
+router.get('/', (req, res) => {
 	res.render('authors/index.ejs');
 });
 
@@ -181,7 +181,7 @@ app.use('/authors', authorsController);
 create route in `controllers/authorsController.js`
 
 ```javascript
-router.get('/new', (req, res)=>{
+router.get('/new', (req, res) => {
 	res.render('authors/new.ejs');
 });
 ```
@@ -283,9 +283,9 @@ views/authors/index.ejs:
     <ul>
         <% for(let i = 0; i < authors.length; i++){ %>
             <li>
-                <a href="/authors/<%=authors[i]._id%>">
-									<%=authors[i].name%>
-								</a>
+                <a href="/authors/<%= authors[i]._id %>">
+			<%= authors[i].name %>
+		</a>
             </li>
         <% } %>
     </ul>
